@@ -1,0 +1,1626 @@
+<!-- 2026-11-21 rev.5 — 헤더·첫 화면 [신청하기] 버튼을 누르면 화면 가운데에 "신청이 완료되었습니다!" 토스트가 떴다 사라짐 (참가비·마지막 구역·모바일 하단 바 버튼은 지금처럼 신청 모달) -->
+<!--
+  ================= 고칠 곳 모음 (아래 글자를 찾아서 바꾸세요) =================
+  [강사명]               → ⑤ 강사 소개, 사진 대체 글(alt)
+  [문의 이메일]          → 푸터
+  [문의 전화]            → 푸터
+  [사이트 주소]          → <head>의 og:url, og:image (예: https://hoseo-ai.pages.dev)
+  [개인정보처리방침 주소] → 푸터 "개인정보 처리방침" 링크의 href="#"
+  [보관 기간]            → 신청 모달의 개인정보 수집·이용 안내
+  [수료증·영수증 안내]    → ⑪ 자주 묻는 질문 마지막 답변
+  세부 강의실 추후 공지   → ① 첫 화면, ⑩ 오시는 길 (예: 5층 교육장으로 바꾸기)
+  잔여 좌석 수           → 맨 아래 <script>의 SEATS_LEFT (지금 11은 예시 숫자, 실제 남은 자리로 꼭 바꾸기)
+  특강 시작 시각          → 맨 아래 <script>의 EVENT_START
+  커리큘럼 툴 태그        → ③ 커리큘럼 각 시간의 ChatGPT / Claude 태그 (실제 쓰는 툴로 확인)
+  요청문 예시 2개         → ⑤ 요청문 예시 (강의에서 실제 쓸 문장으로 바꿔도 됨)
+  신청 접수 연결          → 맨 아래 <script>의 "실제 접수 연결" 주석 자리
+  ============================================================================
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>rev.5 AI 특강 신청 페이지 — 신청 완료 토스트</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="호서대학교 × 유니콘랩 AI 특강. 퇴근이 빨라지는 AI 업무 활용법. 2026년 12월 12일(토) 오후 2시, 호서대학교 아산캠퍼스 강석규교육관, 선착순 40명.">
+
+<!-- 카카오톡·SNS 공유 미리보기 -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="퇴근이 빨라지는 AI 업무 활용법 | 호서대학교 × 유니콘랩 AI 특강">
+<meta property="og:description" content="매일 하던 일, AI에게 넘기는 3시간. 2026년 12월 12일(토) 오후 2시 · 호서대학교 아산캠퍼스 · 선착순 40명">
+<meta property="og:url" content="https://[사이트 주소]/">
+<meta property="og:image" content="https://[사이트 주소]/images/main_hero.jpg">
+<meta property="og:locale" content="ko_KR">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 레이아웃: 휴대폰 기준 한 줄 세로 흐름. 호서대 파랑 → 보라 그라데이션 구역과 밝은 회색 구역을 번갈아 쓰고, 분홍→청록은 버튼·강조에만 */
+:root {
+  --navy: #0b1640;
+  --navy-2: #13205a;
+  --blue: #1057a2;
+  --violet: #4b2aa8;
+  --grey: #f2f3f7;
+  --card: #ffffff;
+  --ink: #141a33;
+  --ink-soft: #5b6382;
+  --white: #f7f8ff;
+  --white-soft: #b8c0e6;
+  --pink: #e6197d;
+  --teal: #14b8a6;
+  --green: #12a150;
+  --red: #d92d4b;
+  --line-light: #e0e3ee;
+  --glass: rgba(255, 255, 255, .1);
+  --glass-line: rgba(255, 255, 255, .22);
+  --glass-dark: rgba(8, 14, 44, .55);
+  --grad-bg: linear-gradient(135deg, var(--navy) 0%, var(--blue) 55%, var(--violet) 100%);
+  --grad-btn: linear-gradient(90deg, var(--pink), var(--teal));
+  --grad-border: linear-gradient(135deg, rgba(16, 87, 162, .35), rgba(75, 42, 168, .18) 45%, rgba(230, 25, 125, .3));
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --shadow:
+    0 1px 2px rgba(20, 26, 51, .06),
+    0 4px 10px -2px rgba(20, 26, 51, .07),
+    0 18px 36px -16px rgba(20, 26, 51, .22);
+  --shadow-lg:
+    0 2px 4px rgba(11, 22, 64, .08),
+    0 12px 24px -8px rgba(11, 22, 64, .18),
+    0 40px 80px -30px rgba(11, 22, 64, .5);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--grey);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+h1, h2, h3, p, ul, ol { margin: 0; }
+h1, h2 { text-wrap: balance; letter-spacing: -0.035em; }
+h3 { letter-spacing: -0.02em; }
+a { color: inherit; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* 공통: 구역 안쪽 폭과 여백 */
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+.sec { padding-block: 72px; }
+.sec-dark { background: var(--grad-bg); color: var(--white); }
+.sec-light { background: var(--grey); color: var(--ink); }
+.sec-head { margin-bottom: 36px; display: grid; gap: 10px; }
+.sec-light .sec-head { justify-items: center; text-align: center; }
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+.kicker::before {
+  content: "";
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--grad-btn);
+}
+.sec-dark .kicker { color: #9fd9ff; }
+.sec-title {
+  font-size: clamp(1.75rem, 6vw, 2.625rem);
+  font-weight: 800;
+  line-height: 1.3;
+}
+.sec-lead { color: var(--ink-soft); max-width: 36em; }
+.sec-dark .sec-lead { color: var(--white-soft); }
+
+/* 공통: 그라데이션 테두리 카드 */
+.g-card {
+  position: relative;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    var(--grad-border) border-box;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+/* 공통: 버튼 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 34px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--grad-btn);
+  color: #fff;
+  font: 700 1.0625rem/1 var(--font);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(230, 25, 125, .3), 0 12px 30px -12px rgba(230, 25, 125, .75);
+  transition: filter .2s, transform .2s;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible, .btn-line:focus-visible, .faq summary:focus-visible, .modal-close:focus-visible, .copy-btn:focus-visible {
+  outline: 3px solid var(--teal); outline-offset: 3px;
+}
+.btn-block { width: 100%; }
+.btn-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line-light);
+  background: var(--card);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+.btn-line:hover { border-color: var(--blue); color: var(--blue); }
+
+/* 공통: 작은 태그·뱃지 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #eef1fb;
+  color: var(--navy-2);
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #e8fbf0;
+  color: var(--green);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: blink 1.6s ease-in-out infinite;
+}
+.badge-hot { background: #fde7ee; color: var(--red); }
+.badge-hot::before { display: none; }
+@keyframes blink { 50% { opacity: .3; } }
+
+/* 공통: 잔여석 게이지 */
+.seat-bar {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .18);
+  overflow: hidden;
+}
+.seat-bar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: inherit;
+  background: var(--grad-btn);
+  transition: width .8s ease;
+}
+.seat-bar.light { background: #e8ebf5; }
+
+/* 공통: 사진 자리 (사진이 없으면 회색 박스 + 파일 이름이 보임) */
+.photo {
+  position: relative;
+  overflow: hidden;
+  background: #9a9cab;
+  max-width: 100%;
+}
+.photo::before {
+  content: attr(data-file);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #f2f3f7;
+  font-size: .875rem;
+}
+.photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 헤더 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 30;
+  background: #fff;
+}
+.header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  background: rgba(255, 255, 255, .95);
+  border-bottom: 1px solid var(--line-light);
+  backdrop-filter: blur(8px);
+}
+.header .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 60px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: .9375rem;
+}
+.logo-chip { flex: none; width: 80px; height: 28px; }
+.logo-chip.photo { background: #fff; }
+.logo-chip.photo::before { font-size: .5rem; color: var(--ink-soft); }
+.logo-chip img { object-fit: contain; }
+.header .btn {
+  min-height: 40px;
+  padding: 0 18px;
+  font-size: .9375rem;
+  box-shadow: none;
+  flex: none;
+}
+
+/* ① 첫 화면 */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--navy);
+  color: var(--white);
+}
+.hero-bg { position: absolute; inset: 0; background: #2b3157; }
+.hero-bg::before { color: #8f95b5; }
+.hero-bg img { object-position: 50% 20%; }
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(11,22,64,.9) 0%, rgba(16,87,162,.74) 55%, rgba(75,42,168,.86) 100%);
+}
+.hero .wrap {
+  position: relative;
+  z-index: 1;
+  padding-block: 32px 44px;
+}
+.eyebrow {
+  display: inline-block;
+  padding: 5px 12px;
+  border: 1px solid var(--glass-line);
+  background: var(--glass);
+  border-radius: 999px;
+  color: #fff;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+  margin-bottom: 14px;
+}
+.hero h1 {
+  font-size: clamp(2.25rem, 10vw, 4.25rem);
+  font-weight: 800;
+  line-height: 1.15;
+  max-width: 12em;
+}
+.hero h1 .hot {
+  background: linear-gradient(90deg, #ff8fd0, #7af0e0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero .sub {
+  margin-top: 10px;
+  font-size: clamp(1.0625rem, 4vw, 1.3125rem);
+  font-weight: 600;
+  color: #e6e9ff;
+}
+.hero-info {
+  list-style: none;
+  margin-top: 20px;
+  padding: 16px 20px;
+  display: grid;
+  gap: 8px;
+  max-width: 500px;
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-weight: 600;
+}
+.hero-info li { display: grid; grid-template-columns: 1.5em 1fr; column-gap: 6px; align-items: start; }
+.hi-body { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.hero-info small {
+  flex-basis: 100%;
+  margin-top: -4px;
+  color: var(--white-soft);
+  font-size: .8125rem;
+  font-weight: 400;
+}
+.hero-info .seats { flex-basis: 100%; display: grid; gap: 6px; margin-top: 2px; }
+.seat-text { font-size: .8125rem; color: var(--white-soft); font-weight: 500; font-variant-numeric: tabular-nums; }
+.seat-text b { color: #ffb3d6; font-weight: 700; }
+
+/* ① 첫 화면 — 신청 버튼 + 카운트다운 */
+.hero-cta {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+  max-width: 640px;
+}
+.hero-cta .btn { flex: 1 1 200px; min-height: 64px; }
+.countdown {
+  flex: 1 1 260px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--glass-dark);
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+.cd-label { font-size: .75rem; font-weight: 600; color: var(--white-soft); line-height: 1.3; flex: none; }
+.cd-units { display: flex; align-items: center; gap: 4px; }
+.cd-unit { display: grid; justify-items: center; min-width: 38px; }
+.cd-unit b {
+  font-size: 1.375rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.cd-unit span { font-size: .6875rem; color: var(--white-soft); }
+.cd-sep { color: rgba(255, 255, 255, .35); font-weight: 700; padding-bottom: 14px; }
+.cd-done { font-weight: 700; color: #fff; }
+
+/* ② 이런 분께 추천합니다 */
+.check-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.check-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 20px 22px;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+.check-list .mark {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--grad-btn);
+  color: #fff;
+  font-size: .8125rem;
+  box-shadow: 0 4px 10px -4px rgba(230, 25, 125, .6);
+}
+
+/* ③ 커리큘럼 */
+.timeline {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.timeline li {
+  position: relative;
+  overflow: hidden;
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 20px;
+  padding: 22px 22px 26px;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  box-shadow: var(--shadow-lg);
+}
+.timeline li::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: var(--grad-btn);
+}
+.timeline li.rest { background: var(--glass); color: var(--white); border: 1px solid var(--glass-line); box-shadow: none; }
+.timeline li.rest::after { display: none; }
+.timeline .time {
+  justify-self: start;
+  padding: 2px 12px;
+  border-radius: 999px;
+  background: #e8edfb;
+  color: var(--blue);
+  font-size: .875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+.timeline li.rest .time { background: transparent; color: var(--white-soft); padding: 0; }
+.timeline .t-title { margin-top: 6px; font-size: 1.125rem; font-weight: 700; line-height: 1.45; }
+.timeline li.rest .t-title { margin-top: 0; font-weight: 400; }
+.timeline .t-desc { color: var(--ink-soft); font-size: .9375rem; line-height: 1.6; }
+.timeline .tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+/* ④ Before & After */
+.ba-grid { display: grid; gap: 16px; }
+.ba-card { padding: 24px; display: grid; gap: 16px; }
+.ba-card h3 { font-size: 1.1875rem; font-weight: 700; }
+.ba-row { display: grid; gap: 10px; }
+.ba-side {
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 4px;
+}
+.ba-before { background: #f4f5f9; color: var(--ink-soft); }
+.ba-after {
+  background: linear-gradient(135deg, #eef4ff, #f6efff);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(16, 87, 162, .15);
+}
+.ba-label { font-size: .75rem; font-weight: 700; letter-spacing: .08em; }
+.ba-before .ba-label { color: #8a90a8; }
+.ba-after .ba-label { color: var(--violet); }
+.ba-time { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.ba-before .ba-time { text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: rgba(217, 45, 75, .6); }
+.ba-after .ba-time {
+  background: var(--grad-btn);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ba-arrow { justify-self: center; color: var(--pink); font-weight: 800; font-size: 1.125rem; line-height: 1; }
+
+/* ⑤ 요청문 예시 */
+.prompt-grid { display: grid; gap: 16px; }
+.prompt-card {
+  background: rgba(8, 14, 44, .55);
+  border: 1px solid var(--glass-line);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.prompt-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px 12px 18px;
+  border-bottom: 1px solid var(--glass-line);
+}
+.prompt-top h3 { font-size: 1rem; font-weight: 700; color: #fff; }
+.copy-btn {
+  flex: none;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--glass);
+  color: #fff;
+  font: 600 .8125rem/1 var(--font);
+  cursor: pointer;
+}
+.copy-btn:hover { background: rgba(255, 255, 255, .18); }
+.copy-btn.done { background: var(--teal); border-color: var(--teal); }
+.prompt-card pre {
+  margin: 0;
+  padding: 18px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  color: #e6e9ff;
+  font: 400 .9375rem/1.75 var(--font);
+}
+.prompt-card pre mark {
+  background: rgba(20, 184, 166, .18);
+  color: #7af0e0;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+/* ⑥ 강점 3가지 · ⑧ 참가 혜택 카드 */
+.strength-photo {
+  aspect-ratio: 16 / 9;
+  border-radius: 22px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.cards { display: grid; gap: 14px; }
+.card {
+  padding: 26px 24px 28px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.card .ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #eef4ff, #fbeef6);
+  box-shadow: inset 0 0 0 1px rgba(16, 87, 162, .12);
+}
+.card h3 { font-size: 1.25rem; font-weight: 700; line-height: 1.4; }
+.card p { color: var(--ink-soft); }
+
+/* ⑦ 강사 소개 */
+.teacher { display: grid; gap: 28px; align-items: center; }
+.teacher-photo {
+  aspect-ratio: 4 / 5;
+  border-radius: 22px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+}
+.teacher-photo img { object-position: 50% 30%; }
+.teacher-name { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; }
+.teacher-role {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  font-weight: 600;
+  font-size: .9375rem;
+}
+.career {
+  list-style: none;
+  padding: 0;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--glass-line);
+  display: grid;
+  gap: 8px;
+  color: #e6e9ff;
+}
+.chips { margin-top: 22px; display: grid; gap: 12px; }
+.chip-row { display: grid; gap: 8px; }
+.chip-row > span { font-size: .75rem; font-weight: 700; letter-spacing: .08em; color: var(--white-soft); }
+.chip-row div { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-row .tag { background: var(--glass); color: #fff; border: 1px solid var(--glass-line); font-size: .8125rem; padding: 4px 12px; }
+
+/* ⑨ 참가비 */
+.price-box {
+  max-width: 520px;
+  margin: 0 auto;
+  border-radius: 26px;
+  padding: 36px 24px;
+  text-align: center;
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+.price-box .sec-head { justify-items: center; margin-bottom: 20px; }
+.price-box .kicker { color: var(--blue); }
+.price-old { color: var(--ink-soft); font-size: 1.0625rem; font-variant-numeric: tabular-nums; }
+.price-old s { margin-left: 6px; }
+.price-new {
+  margin-top: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.price-new .label {
+  padding: 2px 12px;
+  border-radius: 999px;
+  background: #fde7f2;
+  color: var(--pink);
+  font-weight: 700;
+  font-size: .9375rem;
+}
+.price-new strong {
+  font-size: clamp(2.75rem, 13vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+}
+.price-note { margin-top: 12px; color: var(--ink-soft); font-size: .875rem; }
+.price-seats {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--grey);
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+.price-seats .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: .875rem; font-weight: 600; }
+.price-seats .row b { color: var(--red); font-variant-numeric: tabular-nums; }
+.price-box .btn { margin-top: 20px; }
+
+/* ⑩ 오시는 길 & 주차 안내 */
+.map-grid { display: grid; gap: 14px; }
+.info-card {
+  padding: 24px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.info-card h3 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.info-card h3 .ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #e8edfb;
+  font-size: 1rem;
+}
+.info-card p, .info-card li { color: var(--ink-soft); }
+.info-card .addr { color: var(--ink); font-weight: 600; }
+.info-card .note { font-size: .875rem; }
+.lots { padding-left: 1.2em; display: grid; gap: 4px; }
+.lots li::marker { color: var(--pink); }
+.map-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* ⑪ 자주 묻는 질문 (펼치기) */
+.faq { display: grid; gap: 12px; max-width: 820px; margin: 0 auto; }
+.faq details {
+  overflow: hidden;
+  interpolate-size: allow-keywords;
+}
+.faq summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 20px 56px 20px 24px;
+  position: relative;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  border-radius: 20px;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "";
+  position: absolute;
+  right: 24px;
+  top: 27px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--ink-soft);
+  border-bottom: 2px solid var(--ink-soft);
+  transform: rotate(45deg);
+  transition: transform .25s ease;
+}
+.faq details[open] summary::after { transform: rotate(-135deg); top: 31px; }
+.faq details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition: block-size .3s ease, content-visibility .3s allow-discrete;
+}
+.faq details[open]::details-content { block-size: auto; }
+.faq-a {
+  padding: 0 24px 22px;
+  color: var(--ink-soft);
+  display: flex;
+  gap: 10px;
+}
+.faq summary b { flex: none; color: var(--blue); }
+.faq-a b { flex: none; color: var(--pink); }
+
+/* ⑫ 마지막 신청 유도 */
+.final {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  color: var(--white);
+}
+.final-bg { position: absolute; inset: 0; background: #2b3157; }
+.final-bg::before { color: #8f95b5; }
+.final::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(11,22,64,.85), rgba(16,87,162,.7) 50%, rgba(75,42,168,.85));
+}
+.final .wrap { position: relative; z-index: 1; padding-block: 96px; }
+.final h2 { font-size: clamp(2rem, 8.5vw, 3.375rem); font-weight: 800; line-height: 1.25; }
+.final p { margin-top: 16px; font-size: 1.0625rem; color: #e6e9ff; }
+.final .btn { margin-top: 32px; }
+
+/* 푸터 */
+.footer {
+  background: var(--navy);
+  color: var(--white-soft);
+  font-size: .875rem;
+  padding-block: 40px;
+}
+.footer .wrap { display: grid; gap: 6px; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; }
+.footer-links a { color: #fff; font-weight: 600; text-underline-offset: 3px; }
+.footer .copy { margin-top: 14px; color: #7f88b3; }
+
+/* 모바일 하단 신청 바 (768px 미만에서만) */
+.sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: rgba(255, 255, 255, .97);
+  border-top: 1px solid var(--line-light);
+  box-shadow: 0 -8px 24px -12px rgba(20, 26, 51, .3);
+  backdrop-filter: blur(8px);
+  transform: translateY(110%);
+  transition: transform .3s ease;
+}
+.sticky-cta.show { transform: none; }
+.sticky-cta .s-text { min-width: 0; line-height: 1.35; }
+.sticky-cta .s-price { font-weight: 800; font-size: 1.125rem; color: var(--navy); font-variant-numeric: tabular-nums; }
+.sticky-cta .s-sub { display: block; font-size: .75rem; color: var(--red); font-weight: 600; }
+.sticky-cta .btn { min-height: 48px; padding: 0 22px; font-size: 1rem; flex: none; box-shadow: none; }
+
+/* 신청 모달 */
+.modal {
+  width: min(480px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+  overflow: auto;
+}
+.modal::backdrop { background: rgba(11, 22, 64, .6); backdrop-filter: blur(3px); }
+.modal[open] { animation: pop .25s ease; }
+@keyframes pop { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+.modal-head {
+  position: relative;
+  padding: 26px 24px 20px;
+  background: var(--grad-bg);
+  color: #fff;
+}
+.modal-head h2 { font-size: 1.375rem; font-weight: 800; }
+.modal-head p { margin-top: 4px; font-size: .875rem; color: var(--white-soft); font-variant-numeric: tabular-nums; }
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--glass);
+  color: #fff;
+  font-size: 1.375rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.modal-body { padding: 22px 24px 26px; display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: .9375rem; font-weight: 600; }
+.field label .opt { color: var(--ink-soft); font-weight: 400; font-size: .8125rem; }
+.field label .req { color: var(--pink); }
+.field input[type="text"], .field input[type="tel"] {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 1.5px solid var(--line-light);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font: 400 1rem var(--font);
+  font-variant-numeric: tabular-nums;
+}
+.field input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(16, 87, 162, .15); }
+.field input[aria-invalid="true"] { border-color: var(--red); }
+.err { min-height: 1.2em; color: var(--red); font-size: .8125rem; }
+.checks { display: grid; gap: 10px; padding: 16px; border-radius: 14px; background: var(--grey); }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: .9375rem; cursor: pointer; }
+.check input { flex: none; width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--blue); }
+.privacy { font-size: .8125rem; color: var(--ink-soft); }
+.privacy summary { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.privacy ul { margin-top: 6px; padding-left: 1.2em; }
+.done { padding: 40px 24px 32px; text-align: center; display: grid; gap: 10px; justify-items: center; }
+.done .big { font-size: 2.5rem; line-height: 1; }
+.done h2 { font-size: 1.5rem; font-weight: 800; }
+.done p { color: var(--ink-soft); }
+.done .summary {
+  width: 100%;
+  margin-top: 6px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--grey);
+  font-size: .9375rem;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+.done .btn { margin-top: 12px; }
+
+/* 신청 완료 토스트 (화면 가운데) */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 40;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 26px 18px 18px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 60%, var(--violet) 100%);
+  color: #fff;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  border: 1px solid var(--glass-line);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -50%) scale(.94);
+  transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  transition: opacity .25s ease, transform .25s ease, visibility 0s;
+}
+.toast-ico {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--grad-btn);
+  font-size: 1rem;
+}
+
+/* 휴대폰 화면 전용 */
+@media (max-width: 767.98px) {
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 380px) {
+  .countdown { flex-direction: column; align-items: stretch; border-radius: 20px; }
+  .cd-label { text-align: center; }
+  .cd-units { justify-content: center; }
+}
+
+/* 컴퓨터 화면 */
+@media (min-width: 768px) {
+  .sec { padding-block: 104px; }
+  .hero .wrap { padding-block: 52px 72px; }
+  .check-list { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cards { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .strength-photo { aspect-ratio: 21 / 8; margin-bottom: 24px; }
+  .timeline { grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .ba-grid, .prompt-grid { grid-template-columns: 1fr 1fr; gap: 18px; }
+  .ba-row { grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .ba-arrow { align-self: center; }
+  .teacher { grid-template-columns: 380px 1fr; gap: 56px; }
+  .price-box { padding: 44px 40px; }
+  .map-grid { grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .final .wrap { padding-block: 140px; }
+  .footer .wrap { grid-template-columns: 1fr auto; column-gap: 24px; }
+  .footer .copy { margin-top: 0; grid-column: 2; grid-row: 1 / span 5; align-self: end; }
+  .sticky-cta { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- 헤더: 화면 맨 위 띠 -->
+<header class="header">
+  <div class="wrap">
+    <div class="logo">
+      <span class="logo-chip photo" data-file="hoseo_logo.png"><img src="images/hoseo_logo.png" alt="호서대학교 로고"></span>
+      <span>호서대학교 × 유니콘랩</span>
+    </div>
+    <button type="button" class="btn" data-toast>신청하기</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ① 첫 화면 -->
+<section class="hero" id="hero">
+  <div class="hero-bg photo" data-file="main_hero.jpg"><img src="images/main_hero.jpg" alt="호서대학교 캠퍼스 앞에 선 참가자"></div>
+  <div class="wrap">
+    <p class="eyebrow">호서대학교 × 유니콘랩 AI 특강</p>
+    <h1><span class="hot">퇴근이 빨라지는</span><br>AI 업무 활용법</h1>
+    <p class="sub">매일 하던 일, AI에게 넘기는 3시간</p>
+    <ul class="hero-info">
+      <li><span aria-hidden="true">📅</span><div class="hi-body"><span class="num">2026년 12월 12일(토) 오후 2시 ~ 5시</span></div></li>
+      <li><span aria-hidden="true">📍</span><div class="hi-body"><span>호서대학교 아산캠퍼스 강석규교육관</span><small>세부 강의실 추후 공지</small></div></li>
+      <li>
+        <span aria-hidden="true">👥</span>
+        <div class="hi-body"><span>선착순 <span data-seat-total>40</span>명</span><span class="badge">모집중</span>
+        <div class="seats">
+          <div class="seat-bar" role="img" data-seat-label><span data-seat-fill></span></div>
+          <span class="seat-text">현재 잔여 <b><span data-seat-left>11</span>석</b></span>
+        </div></div>
+      </li>
+    </ul>
+
+    <!-- ① 첫 화면 — 신청 버튼 + 카운트다운 -->
+    <div class="hero-cta">
+      <button type="button" class="btn" data-toast>지금 신청하기</button>
+      <div class="countdown" id="countdown" role="timer" aria-label="특강 시작까지 남은 시간">
+        <span class="cd-label">특강<br>시작까지</span>
+        <div class="cd-units" id="cdUnits">
+          <span class="cd-unit"><b id="cdD">00</b><span>일</span></span>
+          <span class="cd-sep" aria-hidden="true">:</span>
+          <span class="cd-unit"><b id="cdH">00</b><span>시간</span></span>
+          <span class="cd-sep" aria-hidden="true">:</span>
+          <span class="cd-unit"><b id="cdM">00</b><span>분</span></span>
+          <span class="cd-sep" aria-hidden="true">:</span>
+          <span class="cd-unit"><b id="cdS">00</b><span>초</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ② 이런 분께 추천합니다 -->
+<section class="sec sec-light">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">For you</span>
+      <h2 class="sec-title">이런 분께 추천합니다</h2>
+    </div>
+    <ul class="check-list">
+      <li class="g-card"><span class="mark" aria-hidden="true">✔</span><span>매주 같은 보고서를 처음부터 쓰는 분</span></li>
+      <li class="g-card"><span class="mark" aria-hidden="true">✔</span><span>AI를 써 보려다 뭘 물어야 할지 몰라 포기한 분</span></li>
+      <li class="g-card"><span class="mark" aria-hidden="true">✔</span><span>회의록 정리에 30분 이상 쓰는 분</span></li>
+      <li class="g-card"><span class="mark" aria-hidden="true">✔</span><span>팀에 AI 활용법을 전하고 싶은 팀장님</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ③ 커리큘럼 -->
+<section class="sec sec-dark">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Curriculum</span>
+      <h2 class="sec-title">3시간, 이렇게 진행합니다</h2>
+    </div>
+    <ol class="timeline">
+      <li>
+        <span class="time">14:00</span>
+        <span class="t-title">AI에게 일 시키는 법</span>
+        <span class="t-desc">요청문 기본 공식 배우기</span>
+        <span class="tools"><span class="tag">ChatGPT</span><span class="tag">Claude</span></span>
+      </li>
+      <li>
+        <span class="time">14:50</span>
+        <span class="t-title">실습 ① 주간보고 10분 만에 쓰기</span>
+        <span class="t-desc">지난주 메모를 넣으면 보고서가 완성됩니다</span>
+        <span class="tools"><span class="tag">ChatGPT</span></span>
+      </li>
+      <li class="rest">
+        <span class="time">15:40</span>
+        <span class="t-title">쉬는 시간</span>
+      </li>
+      <li>
+        <span class="time">15:50</span>
+        <span class="t-title">실습 ② 회의록·메일 자동 정리</span>
+        <span class="t-desc">녹음 내용을 회의록과 공유 메일로 바꿉니다</span>
+        <span class="tools"><span class="tag">Claude</span></span>
+      </li>
+      <li>
+        <span class="time">16:40</span>
+        <span class="t-title">질의응답 + 템플릿 배포</span>
+        <span class="tools"><span class="tag">요청문 템플릿 30개</span></span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ④ Before & After -->
+<section class="sec sec-light">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Before &amp; After</span>
+      <h2 class="sec-title">3시간 뒤 내 업무가 이렇게 바뀝니다</h2>
+    </div>
+    <div class="ba-grid">
+      <article class="ba-card g-card">
+        <h3>📝 주간업무보고서 초안</h3>
+        <div class="ba-row">
+          <div class="ba-side ba-before">
+            <span class="ba-label">BEFORE</span>
+            <span class="ba-time">30분~1시간</span>
+            <span>지난주 메모를 뒤지며 처음부터 작성</span>
+          </div>
+          <span class="ba-arrow" aria-hidden="true">→</span>
+          <div class="ba-side ba-after">
+            <span class="ba-label">AFTER · AI 활용</span>
+            <span class="ba-time">3분 완성</span>
+            <span>메모를 넣으면 보고서 초안 완성</span>
+          </div>
+        </div>
+      </article>
+      <article class="ba-card g-card">
+        <h3>🎙️ 회의 녹취록 요약 + 후속 메일</h3>
+        <div class="ba-row">
+          <div class="ba-side ba-before">
+            <span class="ba-label">BEFORE</span>
+            <span class="ba-time">30분~1시간</span>
+            <span>녹음을 다시 들으며 정리하고, 메일은 따로 작성</span>
+          </div>
+          <span class="ba-arrow" aria-hidden="true">→</span>
+          <div class="ba-side ba-after">
+            <span class="ba-label">AFTER · AI 활용</span>
+            <span class="ba-time">3분 완성</span>
+            <span>녹음 내용을 회의록과 공유 메일로 한 번에</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ⑤ 요청문 예시 -->
+<section class="sec sec-dark">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Prompt</span>
+      <h2 class="sec-title">이렇게 요청하면 됩니다</h2>
+      <p class="sec-lead">강의에서 배우는 요청문을 미리 맛보세요. 복사해서 바로 써 볼 수 있어요.</p>
+    </div>
+    <div class="prompt-grid">
+      <article class="prompt-card">
+        <div class="prompt-top">
+          <h3>예시 ① 주간보고</h3>
+          <button type="button" class="copy-btn" data-copy="p1">복사</button>
+        </div>
+<pre id="p1">너는 우리 팀의 주간보고 작성 도우미야.
+아래 메모를 바탕으로 '이번 주 한 일 / 다음 주 할 일 / 이슈' 3칸 표로 정리해 줘.
+문장은 짧게, 숫자는 메모 그대로 써 줘.
+
+<mark>[지난주 메모 붙여 넣기]</mark></pre>
+      </article>
+      <article class="prompt-card">
+        <div class="prompt-top">
+          <h3>예시 ② 회의록 + 공유 메일</h3>
+          <button type="button" class="copy-btn" data-copy="p2">복사</button>
+        </div>
+<pre id="p2">아래는 회의 녹음 내용이야.
+① 결정된 것 ② 할 일(담당자·기한) ③ 남은 질문 순서로 회의록을 써 줘.
+그다음 참석자에게 보낼 공유 메일 초안도 써 줘.
+
+<mark>[녹음 내용 붙여 넣기]</mark></pre>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ⑥ 강점 3가지 -->
+<section class="sec sec-light">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Why</span>
+      <h2 class="sec-title">처음이어도 괜찮은 이유</h2>
+    </div>
+    <div class="strength-photo photo" data-file="lecture.jpg"><img src="images/lecture.jpg" alt="강사가 앞에서 설명하고 참가자들이 노트북으로 실습하는 강의실 모습"></div>
+    <div class="cards">
+      <article class="card g-card">
+        <span class="ico" aria-hidden="true">💻</span>
+        <h3>노트북만 가져오세요</h3>
+        <p>이론보다 실습입니다. 강사와 함께 한 단계씩 따라 하면 됩니다.</p>
+      </article>
+      <article class="card g-card">
+        <span class="ico" aria-hidden="true">🗂️</span>
+        <h3>내 업무로 바로 실습</h3>
+        <p>주간보고, 회의록, 엑셀 정리. 매일 하는 일 3가지를 직접 해 봅니다.</p>
+      </article>
+      <article class="card g-card">
+        <span class="ico" aria-hidden="true">🚀</span>
+        <h3>돌아가서도 바로 쓰기</h3>
+        <p>요청문 템플릿 30개와 1개월 질문방을 드립니다.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ⑦ 강사 소개 -->
+<section class="sec sec-dark">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Speaker</span>
+      <h2 class="sec-title">강사 소개</h2>
+    </div>
+    <div class="teacher">
+      <div class="teacher-photo photo" data-file="teacher.jpg"><img src="images/teacher.jpg" alt="무대에서 강연 중인 [강사명] 강사"></div>
+      <div>
+        <p class="teacher-name">[강사명] 강사</p>
+        <p class="teacher-role">유니콘랩 대표 · AI 업무 활용 교육 전문</p>
+        <ul class="career">
+          <li>· 기업 AI 업무 활용 교육 진행</li>
+          <li>· 직장인 대상 AI 실무 강의 운영</li>
+          <li>· 『퇴근이 빨라지는 AI』 강의 자료 제작</li>
+        </ul>
+        <div class="chips">
+          <div class="chip-row">
+            <span>추천 대상</span>
+            <div><span class="tag">사무직 직장인</span><span class="tag">AI 입문자</span><span class="tag">팀장님</span></div>
+          </div>
+          <div class="chip-row">
+            <span>강의 핵심 키워드</span>
+            <div><span class="tag">요청문 공식</span><span class="tag">주간보고</span><span class="tag">회의록</span><span class="tag">메일 정리</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑧ 참가 혜택 -->
+<section class="sec sec-light">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Benefits</span>
+      <h2 class="sec-title">참가자 전원에게 드립니다</h2>
+    </div>
+    <div class="cards">
+      <article class="card g-card">
+        <span class="ico" aria-hidden="true">📋</span>
+        <h3>요청문 템플릿 30개</h3>
+        <p>보고서, 회의록, 메일. 복사해서 바로 쓰는 문장 모음</p>
+      </article>
+      <article class="card g-card">
+        <span class="ico" aria-hidden="true">📄</span>
+        <h3>실습 자료 PDF</h3>
+        <p>오늘 한 실습을 집에서 다시 따라 할 수 있는 자료</p>
+      </article>
+      <article class="card g-card">
+        <span class="ico" aria-hidden="true">💬</span>
+        <h3>1개월 질문방</h3>
+        <p>회사에서 막히면 바로 물어보세요</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ⑨ 참가비 -->
+<section class="sec sec-dark">
+  <div class="wrap">
+    <div class="price-box g-card">
+      <div class="sec-head">
+        <span class="kicker">Price</span>
+        <h2 class="sec-title">참가비</h2>
+      </div>
+      <p class="price-old">정가 <s>49,000원</s></p>
+      <p class="price-new"><span class="label">특강가</span><strong>39,000원</strong></p>
+      <p class="price-note">템플릿 30개 · 실습 자료 PDF · 1개월 질문방 포함</p>
+      <div class="price-seats">
+        <div class="row"><span>선착순 <span data-seat-total>40</span>명</span><span>잔여 <b><span data-seat-left>11</span>석</b></span></div>
+        <div class="seat-bar light" role="img" data-seat-label><span data-seat-fill></span></div>
+      </div>
+      <button type="button" class="btn btn-block" data-apply>지금 신청하기</button>
+    </div>
+  </div>
+</section>
+
+<!-- ⑩ 오시는 길 & 주차 안내 -->
+<section class="sec sec-light" id="location">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Location</span>
+      <h2 class="sec-title">오시는 길 &amp; 주차 안내</h2>
+    </div>
+    <div class="map-grid">
+      <div class="info-card g-card">
+        <h3><span class="ico" aria-hidden="true">📍</span>주소</h3>
+        <p class="addr">충남 아산시 배방읍 호서로79번길 20<br>호서대학교 아산캠퍼스 강석규교육관</p>
+        <p class="note">세부 강의실 추후 공지</p>
+        <div class="map-links">
+          <a class="btn-line" href="https://map.naver.com/p/search/%ED%98%B8%EC%84%9C%EB%8C%80%ED%95%99%EA%B5%90%20%EC%95%84%EC%82%B0%EC%BA%A0%ED%8D%BC%EC%8A%A4%20%EA%B0%95%EC%84%9D%EA%B7%9C%EA%B5%90%EC%9C%A1%EA%B4%80" target="_blank" rel="noopener noreferrer">네이버 지도</a>
+          <a class="btn-line" href="https://map.kakao.com/link/search/%ED%98%B8%EC%84%9C%EB%8C%80%ED%95%99%EA%B5%90%20%EC%95%84%EC%82%B0%EC%BA%A0%ED%8D%BC%EC%8A%A4%20%EA%B0%95%EC%84%9D%EA%B7%9C%EA%B5%90%EC%9C%A1%EA%B4%80" target="_blank" rel="noopener noreferrer">카카오맵</a>
+        </div>
+      </div>
+      <div class="info-card g-card">
+        <h3><span class="ico" aria-hidden="true">🏛️</span>건물 위치</h3>
+        <p>아산캠퍼스 정문으로 들어와 직진하면, 잔디밭 끝(12시 방향)에 있는 본관이 강석규교육관입니다.</p>
+      </div>
+      <div class="info-card g-card">
+        <h3><span class="ico" aria-hidden="true">🅿️</span>주차 안내</h3>
+        <p>교내 주차 공간이 협소할 수 있어, 아산캠퍼스 정문 근처 무료주차장 이용을 권장합니다.</p>
+        <ul class="lots">
+          <li>교육문화회관 주차장</li>
+          <li>캔두빌딩 정면 주차장</li>
+          <li>산학협력단 주차장</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑪ 자주 묻는 질문 -->
+<section class="sec sec-light" id="faq" style="padding-top: 0;">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">FAQ</span>
+      <h2 class="sec-title">자주 묻는 질문</h2>
+    </div>
+    <div class="faq">
+      <details class="g-card" open>
+        <summary><b>Q.</b><span>노트북이 꼭 필요한가요?</span></summary>
+        <p class="faq-a"><b>A.</b><span>네, 직접 따라 하는 실습이라 노트북을 꼭 가져와 주세요.<br>운영체제는 윈도우, 맥 모두 괜찮습니다.</span></p>
+      </details>
+      <details class="g-card">
+        <summary><b>Q.</b><span>AI를 한 번도 안 써 봤는데 괜찮나요?</span></summary>
+        <p class="faq-a"><b>A.</b><span>네, 괜찮습니다. 가입부터 첫 질문까지 강사와 함께 한 단계씩 따라 합니다.</span></p>
+      </details>
+      <details class="g-card">
+        <summary><b>Q.</b><span>준비물이 있나요? ChatGPT 계정을 미리 만들어야 하나요?</span></summary>
+        <p class="faq-a"><b>A.</b><span>노트북만 가져오시면 됩니다.<br>ChatGPT 무료 계정은 미리 가입해 오시면 좋고, 못 하셨어도 현장에서 강사와 함께 가입합니다.</span></p>
+      </details>
+      <details class="g-card">
+        <summary><b>Q.</b><span>주차되나요?</span></summary>
+        <p class="faq-a"><b>A.</b><span>교내 주차 공간이 협소할 수 있어, 아산캠퍼스 정문 근처 무료주차장(교육문화회관 주차장, 캔두빌딩 정면 주차장, 산학협력단 주차장) 이용을 권장합니다.<br>자세한 안내는 신청 후 문자로 보내 드립니다.</span></p>
+      </details>
+      <details class="g-card">
+        <summary><b>Q.</b><span>환불 규정은 어떻게 되나요?</span></summary>
+        <p class="faq-a"><b>A.</b><span>특강 3일 전까지는 전액 환불됩니다.<br>그 이후에는 환불이 어렵습니다.</span></p>
+      </details>
+      <details class="g-card">
+        <summary><b>Q.</b><span>수료증이나 영수증을 받을 수 있나요?</span></summary>
+        <p class="faq-a"><b>A.</b><span>[수료증·영수증 안내]</span></p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ⑫ 마지막 신청 유도 -->
+<section class="final" id="final">
+  <div class="final-bg photo" data-file="final_bg.jpg"><img src="images/final_bg.jpg" alt="호서대학교 캠퍼스 본관과 진입로 풍경"></div>
+  <div class="wrap">
+    <h2>다음 주부터, 퇴근이 빨라집니다</h2>
+    <p>자리가 차면 조기 마감됩니다.</p>
+    <button type="button" class="btn" data-apply>지금 신청하기</button>
+  </div>
+</section>
+
+</main>
+
+<!-- 푸터: 화면 맨 아래 -->
+<footer class="footer">
+  <div class="wrap">
+    <p>주최: 호서대학교 × 유니콘랩</p>
+    <p>문의: [문의 이메일] · [문의 전화]</p>
+    <p>환불 규정: 특강 3일 전까지 전액 환불, 이후 환불 불가</p>
+    <div class="footer-links">
+      <a href="#">개인정보 처리방침</a>
+      <a href="#faq">환불 규정 자세히 보기</a>
+    </div>
+    <p class="copy">© 2026 유니콘랩</p>
+  </div>
+</footer>
+
+<!-- 모바일 하단 신청 바 -->
+<div class="sticky-cta" id="stickyCta" aria-hidden="true">
+  <div class="s-text">
+    <span class="s-price">특강가 39,000원</span>
+    <span class="s-sub">선착순 40명 마감 임박</span>
+  </div>
+  <button type="button" class="btn" data-apply tabindex="-1">지금 신청하기</button>
+</div>
+
+<!-- 신청 완료 토스트 -->
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+  <span class="toast-ico" aria-hidden="true">✓</span>
+  <span id="toastText"></span>
+</div>
+
+<!-- 신청 모달 (팝업) -->
+<dialog class="modal" id="applyModal" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+  <div id="formView">
+    <div class="modal-head">
+      <h2 id="modalTitle">특강 참가 신청</h2>
+      <p id="modalDesc">2026년 12월 12일(토) 오후 2시 · 호서대학교 아산캠퍼스</p>
+      <button type="button" class="modal-close" data-close aria-label="신청 창 닫기">×</button>
+    </div>
+    <form class="modal-body" id="applyForm" novalidate>
+      <div class="field">
+        <label for="fName">이름 <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="fName" name="name" autocomplete="name" required aria-describedby="eName">
+        <span class="err" id="eName" role="alert"></span>
+      </div>
+      <div class="field">
+        <label for="fPhone">연락처 <span class="req" aria-hidden="true">*</span></label>
+        <input type="tel" id="fPhone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="010-0000-0000" maxlength="13" required aria-describedby="ePhone">
+        <span class="err" id="ePhone" role="alert"></span>
+      </div>
+      <div class="field">
+        <label for="fJob">소속/직무 <span class="opt">(선택)</span></label>
+        <input type="text" id="fJob" name="job" autocomplete="organization">
+      </div>
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="fLaptop" name="laptop" required aria-describedby="eChecks"><span>실습용 노트북을 가져오겠습니다. <span class="req" aria-hidden="true">*</span></span></label>
+        <label class="check"><input type="checkbox" id="fAgree" name="agree" required aria-describedby="eChecks"><span>개인정보 수집·이용에 동의합니다. <span class="req" aria-hidden="true">*</span></span></label>
+        <details class="privacy">
+          <summary>개인정보 수집·이용 안내 보기</summary>
+          <ul>
+            <li>수집 항목: 이름, 연락처, 소속/직무(선택)</li>
+            <li>이용 목적: 특강 신청 접수 및 안내 문자 발송</li>
+            <li>보관 기간: [보관 기간]</li>
+          </ul>
+        </details>
+        <span class="err" id="eChecks" role="alert"></span>
+      </div>
+      <button type="submit" class="btn btn-block">신청하기</button>
+    </form>
+  </div>
+  <div class="done" id="doneView" hidden>
+    <span class="big" aria-hidden="true">🎉</span>
+    <h2 id="doneTitle" tabindex="-1">신청 완료!</h2>
+    <p>특강 안내 문자를 보내 드릴게요.</p>
+    <div class="summary" id="doneSummary"></div>
+    <button type="button" class="btn btn-block" data-close>확인</button>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  /* ── 여기 숫자만 바꾸면 페이지 전체에 반영됩니다 ── */
+  var EVENT_START = '2026-12-12T14:00:00+09:00'; /* 특강 시작 시각 (한국 시간) */
+  var SEATS_TOTAL = 40;                           /* 전체 정원 */
+  var SEATS_LEFT = 11;                            /* 남은 자리 — 지금 11은 예시, 실제 숫자로 바꾸기 */
+
+  /* 잔여석 표시 + 게이지 */
+  document.querySelectorAll('[data-seat-total]').forEach(function (el) { el.textContent = SEATS_TOTAL; });
+  document.querySelectorAll('[data-seat-left]').forEach(function (el) { el.textContent = SEATS_LEFT; });
+  var filled = Math.max(0, Math.min(100, (SEATS_TOTAL - SEATS_LEFT) / SEATS_TOTAL * 100));
+  document.querySelectorAll('[data-seat-label]').forEach(function (el) {
+    el.setAttribute('aria-label', '정원 ' + SEATS_TOTAL + '명 중 ' + (SEATS_TOTAL - SEATS_LEFT) + '명 신청, 잔여 ' + SEATS_LEFT + '석');
+  });
+  requestAnimationFrame(function () {
+    document.querySelectorAll('[data-seat-fill]').forEach(function (el) { el.style.width = filled + '%'; });
+  });
+
+  /* 카운트다운: 1초마다 남은 일·시간·분·초 계산 */
+  var target = new Date(EVENT_START).getTime();
+  var cd = document.getElementById('countdown');
+  var els = { d: document.getElementById('cdD'), h: document.getElementById('cdH'), m: document.getElementById('cdM'), s: document.getElementById('cdS') };
+  var timer = null;
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tick() {
+    var diff = target - Date.now();
+    if (isNaN(diff) || diff <= 0) {
+      cd.innerHTML = '<span class="cd-done">특강이 시작되었습니다</span>';
+      cd.setAttribute('aria-label', '특강이 시작되었습니다');
+      if (timer) clearInterval(timer);
+      return;
+    }
+    var sec = Math.floor(diff / 1000);
+    els.d.textContent = pad(Math.floor(sec / 86400));
+    els.h.textContent = pad(Math.floor(sec % 86400 / 3600));
+    els.m.textContent = pad(Math.floor(sec % 3600 / 60));
+    els.s.textContent = pad(sec % 60);
+  }
+  tick();
+  timer = setInterval(tick, 1000);
+
+  /* 요청문 복사 버튼 */
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = document.getElementById(btn.getAttribute('data-copy'));
+      var text = pre.innerText;
+      function ok() {
+        btn.textContent = '복사됨';
+        btn.classList.add('done');
+        setTimeout(function () { btn.textContent = '복사'; btn.classList.remove('done'); }, 1800);
+      }
+      function fallback() {
+        var r = document.createRange();
+        r.selectNodeContents(pre);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+        btn.textContent = '선택됨 · 길게 눌러 복사';
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(ok, fallback);
+      } else { fallback(); }
+    });
+  });
+
+  /* 신청 완료 토스트: 헤더·첫 화면 신청 버튼 */
+  var toast = document.getElementById('toast');
+  var toastText = document.getElementById('toastText');
+  var toastTimer = null;
+  document.querySelectorAll('[data-toast]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      toastText.textContent = '';
+      toast.classList.remove('show');
+      void toast.offsetWidth;
+      toastText.textContent = '신청이 완료되었습니다!';
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2500);
+    });
+  });
+
+  /* ── 신청 모달 ── */
+  var modal = document.getElementById('applyModal');
+  var form = document.getElementById('applyForm');
+  var formView = document.getElementById('formView');
+  var doneView = document.getElementById('doneView');
+  var phone = document.getElementById('fPhone');
+  var lastOpener = null;
+
+  /* 신청 창 열기: 신청 버튼 모두 */
+  document.querySelectorAll('[data-apply]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      lastOpener = btn;
+      formView.hidden = false;
+      doneView.hidden = true;
+      if (typeof modal.showModal === 'function') { modal.showModal(); } else { modal.setAttribute('open', ''); }
+      document.getElementById('fName').focus();
+    });
+  });
+
+  /* 신청 창 닫기: X 버튼, 확인 버튼, 배경 클릭 (ESC는 브라우저가 기본으로 닫아 줌) */
+  function closeModal() { if (modal.open) modal.close(); }
+  modal.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeModal); });
+  modal.addEventListener('click', function (e) {
+    var r = modal.getBoundingClientRect();
+    var inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    if (e.target === modal && !inside) closeModal();
+  });
+  modal.addEventListener('close', function () {
+    if (!doneView.hidden) { form.reset(); clearErrors(); }
+    if (lastOpener && lastOpener.offsetParent !== null) lastOpener.focus();
+  });
+
+  /* 연락처 자동 하이픈: 01012345678 → 010-1234-5678 */
+  phone.addEventListener('input', function () {
+    var d = phone.value.replace(/\D/g, '').slice(0, 11);
+    if (d.length > 7) phone.value = d.slice(0, 3) + '-' + d.slice(3, 7) + '-' + d.slice(7);
+    else if (d.length > 3) phone.value = d.slice(0, 3) + '-' + d.slice(3);
+    else phone.value = d;
+  });
+
+  /* 고쳐 입력하면 그 칸의 빨간 안내 지우기 */
+  document.getElementById('fName').addEventListener('input', function () { setErr(this, 'eName', ''); });
+  phone.addEventListener('input', function () { setErr(phone, 'ePhone', ''); });
+  ['fLaptop', 'fAgree'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', function () { document.getElementById('eChecks').textContent = ''; });
+  });
+
+  function setErr(input, errId, msg) {
+    document.getElementById(errId).textContent = msg;
+    if (input) input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+  function clearErrors() {
+    setErr(document.getElementById('fName'), 'eName', '');
+    setErr(phone, 'ePhone', '');
+    document.getElementById('eChecks').textContent = '';
+  }
+
+  /* 신청하기 누르면: 입력 확인 → 완료 화면 */
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearErrors();
+    var name = document.getElementById('fName');
+    var ok = true, first = null;
+    if (!name.value.trim()) { setErr(name, 'eName', '이름을 입력해 주세요.'); ok = false; first = first || name; }
+    if (!/^01[016789]-\d{3,4}-\d{4}$/.test(phone.value)) { setErr(phone, 'ePhone', '연락처를 010-0000-0000 형식으로 입력해 주세요.'); ok = false; first = first || phone; }
+    var laptop = document.getElementById('fLaptop'), agree = document.getElementById('fAgree');
+    if (!laptop.checked || !agree.checked) {
+      document.getElementById('eChecks').textContent = '노트북 지참과 개인정보 수집·이용 동의에 모두 체크해 주세요.';
+      ok = false; first = first || (!laptop.checked ? laptop : agree);
+    }
+    if (!ok) { first.focus(); return; }
+
+    /* ── 실제 접수 연결 ──
+       지금은 화면에서만 완료로 보여 줍니다. 입력한 정보는 어디에도 보내지지 않습니다.
+       실제로 접수하려면 이 자리에서 서버(예: Cloudflare D1)로 보내는 코드를 넣으세요. */
+
+    var s = document.getElementById('doneSummary');
+    s.textContent = '';
+    [['이름', name.value.trim()], ['연락처', phone.value], ['소속/직무', document.getElementById('fJob').value.trim() || '-']].forEach(function (row) {
+      var p = document.createElement('div');
+      p.textContent = row[0] + ': ' + row[1];
+      s.appendChild(p);
+    });
+    formView.hidden = true;
+    doneView.hidden = false;
+    document.getElementById('doneTitle').focus();
+  });
+
+  /* 모바일 하단 신청 바: 첫 화면을 지나면 나타나고, 마지막 구역에서는 숨김 */
+  var bar = document.getElementById('stickyCta');
+  var barBtn = bar.querySelector('button');
+  var heroGone = false, finalSeen = false;
+  function updateBar() {
+    var show = heroGone && !finalSeen;
+    bar.classList.toggle('show', show);
+    bar.setAttribute('aria-hidden', show ? 'false' : 'true');
+    barBtn.tabIndex = show ? 0 : -1;
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) { heroGone = !en[0].isIntersecting; updateBar(); }).observe(document.getElementById('hero'));
+    new IntersectionObserver(function (en) { finalSeen = en[0].isIntersecting; updateBar(); }).observe(document.getElementById('final'));
+  } else { heroGone = true; updateBar(); }
+})();
+</script>
+</body>
+</html>
